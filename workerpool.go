@@ -6,7 +6,7 @@ import "context"
 func New(noWorkers int) WorkerPool {
 	return WorkerPool{
 		noWorkers: noWorkers,
-		in:        make(chan Work),
+		in:        make(chan func()),
 		exit:      make(chan bool),
 	}
 }
@@ -15,7 +15,7 @@ func New(noWorkers int) WorkerPool {
 func NewBuffered(noWorkers int, bufSize int) WorkerPool {
 	return WorkerPool{
 		noWorkers: noWorkers,
-		in:        make(chan Work, bufSize),
+		in:        make(chan func(), bufSize),
 		exit:      make(chan bool),
 	}
 }
@@ -23,12 +23,9 @@ func NewBuffered(noWorkers int, bufSize int) WorkerPool {
 // WorkerPool holds the info needed to run a worker pool
 type WorkerPool struct {
 	noWorkers int
-	in        chan Work
+	in        chan func()
 	exit      chan bool
 }
-
-// Work is the abstraction of a work
-type Work func()
 
 // Start starts the workers in a worker pool
 func (pool WorkerPool) Start() {
@@ -52,7 +49,7 @@ func (pool WorkerPool) Stop() {
 }
 
 // Queue queues work to be completed by WorkerPool
-func (pool WorkerPool) Queue(ctx context.Context, work Work) error {
+func (pool WorkerPool) Queue(ctx context.Context, work func()) error {
 	select {
 	case pool.in <- work:
 		return nil
