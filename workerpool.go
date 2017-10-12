@@ -45,7 +45,9 @@ func (pool WorkerPool) Start() {
 
 // Stop stops a pool of workers
 func (pool WorkerPool) Stop() {
-	pool.exit <- true
+	for i := 0; i < pool.noWorkers; i++ {
+		pool.exit <- true
+	}
 }
 
 // Queue queues work to be completed by WorkerPool
