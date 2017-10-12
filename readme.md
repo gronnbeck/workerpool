@@ -13,14 +13,19 @@ func main() {
   work := 10
   res := make(chan error)
 
-  for i:=0; i < work; i++ {
-    go func() {
+  doWork := func() error {
+    return nil
+  }
+
+  go func() {
+    for i:=0; i < work; i++ {
       ctx := context.Background()
       pool.Queue(ctx, func() {
         res <- doWork() // some function that does work
       })
-    }()
-  }
+    }
+  }()
+
 
   for i := i < work; i ++ {
     select {
